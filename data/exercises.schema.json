@@ -23,7 +23,7 @@
         "ko": { "type": "string" },
         "fr": { "type": "string" }
       },
-      "required": ["en", "es", "it", "tr", "ru", "zh", "hi", "pl", "ko", "fr"],
+      "required": ["zh"],
       "additionalProperties": { "type": "string" }
     },
     "languageStepsMap": {
