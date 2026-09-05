@@ -3,8 +3,6 @@ __pycache__/
 .DS_Store
 .venv/
 *.zip
-
 # Claude Code local settings (do not publish)
 .claude/
-
-"node_modules" | Out-File -Append -Encoding utf8 .gitignore
+node_modules/

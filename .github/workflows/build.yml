@@ -23,8 +23,14 @@ jobs:
         with:
           node-version: '20'
 
-      - name: 安装依赖
-        run: npm install
+      - name: 清理旧的 node_modules（防止残留坏权限）
+        run: rm -rf node_modules
+
+      - name: 干净安装依赖
+        run: npm ci || npm install
+
+      - name: 修复执行权限（保险措施）
+        run: chmod -R +x node_modules/.bin
 
       - name: 同步 Capacitor 项目
         run: npx cap sync android
