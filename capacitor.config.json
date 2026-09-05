@@ -1,0 +1,11 @@
+{
+  "appId": "com.yourname.exercisedb",
+  "appName": "动作库",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

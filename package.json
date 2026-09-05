@@ -1,0 +1,16 @@
+{
+  "name": "exercise-db-app",
+  "version": "1.0.0",
+  "description": "健身动作库 - 本地 Android App",
+  "scripts": {
+    "sync": "npx cap sync android",
+    "open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
