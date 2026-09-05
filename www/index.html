@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#1e2327">
   <!-- 如让深色/浅色模式下颜色不同 -->
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1e2327" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#1e2327" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="##ffffff" media="(prefers-color-scheme: dark)">
 
   <!-- iOS Safari：如果你是"添加到主屏幕"当作 PWA 打开的 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -745,7 +745,8 @@
         padding-bottom: 2px;
       }
       .filter-options::-webkit-scrollbar { display: none; }
-      .sidebar-toggle-btn { display: flex; }
+      /* .sidebar-toggle-btn { display: flex; } */
+      .sidebar-toggle-btn { display: flex !important; }
       .sidebar.collapsed { max-height: none; }
       .sidebar.collapsed .sidebar-body { display: none; }
 
@@ -1715,7 +1716,7 @@
         const sidebarEl = document.getElementById('sidebar');
     const sidebarToggleBtn = document.getElementById('sidebar-toggle');
     if (sidebarEl && sidebarToggleBtn) {
-      if (localStorage.getItem('sidebarCollapsed') === '1') {
+      if (localStorage.getItem('sidebarCollapsed') === '0') {
         sidebarEl.classList.add('collapsed');
         sidebarToggleBtn.setAttribute('aria-expanded', 'false');
       }
