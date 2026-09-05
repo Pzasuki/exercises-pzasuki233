@@ -1,11 +1,12 @@
 {
-  "appId": "com.yourname.exercisedb",
+  "appId": "com.Pzasuki.exercisedb",
   "appName": "动作库",
   "webDir": "www",
   "server": {
     "androidScheme": "https"
   },
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "adjustMarginsForEdgeToEdge": "auto"
   }
 }
