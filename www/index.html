@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1e2327">
+  <!-- 如让深色/浅色模式下颜色不同 -->
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1e2327" media="(prefers-color-scheme: dark)">
+
+  <!-- iOS Safari：如果你是"添加到主屏幕"当作 PWA 打开的 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>动作库</title>
   <style>
     /* ── Reset ─────────────────────────────────────── */
@@ -737,6 +745,9 @@
         padding-bottom: 2px;
       }
       .filter-options::-webkit-scrollbar { display: none; }
+      .sidebar-toggle-btn { display: flex; }
+      .sidebar.collapsed { max-height: none; }
+      .sidebar.collapsed .sidebar-body { display: none; }
 
       /* Main */
       .main-content { height: auto; flex: 1; overflow-y: auto; }
@@ -813,6 +824,28 @@
 
     .db-setup-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
     .db-setup-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-muted); }
+    .sidebar-toggle-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-elevated);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.sidebar-toggle-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-muted); }
+.sidebar-toggle-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px;
+  background: var(--accent); color: #fff; font-size: 10px; font-weight: 700;
+}
+.sidebar-toggle-chevron { width: 12px; height: 12px; flex-shrink: 0; transition: transform 0.2s ease; }
+.sidebar.collapsed .sidebar-toggle-chevron { transform: rotate(-90deg); }
 
     /* ── DB Setup Overlay ────────────────────────────── */
     .db-overlay {
@@ -1027,9 +1060,16 @@
 
 <div class="app-shell">
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">动作<span>库</span></div>
+  <aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">动作<span>库</span></div>
+    <button class="sidebar-toggle-btn" id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="sidebar-body" title="收起/展开筛选">
+      <span id="sidebar-toggle-label">筛选</span>
+      <span class="sidebar-toggle-count" id="sidebar-toggle-count" hidden></span>
+      <svg class="sidebar-toggle-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
       <!--暂时用不上数据库，先注释隐藏
 	  <a class="db-setup-btn" href="setup.html" target="_blank" title="数据库设置">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -1042,7 +1082,7 @@
       </a>
 	  -->
     </div>
-    <div class="sidebar-body">
+    <div class="sidebar-body" id="sidebar-body">
       <!-- Search -->
       <div class="search-wrapper">
         <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -1505,6 +1545,16 @@
       clearAll.addEventListener('click', clearAllFilters);
       activeFilEl.appendChild(clearAll);
     }
+    updateSidebarToggleCount();
+  }
+
+  function updateSidebarToggleCount() {
+    const countEl = document.getElementById('sidebar-toggle-count');
+    if (!countEl) return;
+    const { category, equipment, target } = state.filters;
+    const n = category.size + equipment.size + target.size;
+    countEl.textContent = n;
+    countEl.hidden = n === 0;
   }
 
   function clearAllFilters() {
@@ -1636,16 +1686,45 @@
     modalOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     modalClose.focus();
+
+    // 打开弹窗时记一条历史记录，返回键才能"关弹窗"而不是"退出App"
+    history.pushState({ modalOpen: true }, '');
   }
 
-  function closeModal() {
+
+
+  function closeModal(fromPopState) {
+    if (!modalOverlay.classList.contains('open')) return; // 已经关了就不重复处理
     modalOverlay.classList.remove('open');
     document.body.style.overflow = '';
     modalGif.src = '';
+
+    // 不是从返回键触发的关闭（比如点了×），就把之前 pushState 那条记录消耗掉
+    if (!fromPopState && history.state && history.state.modalOpen) {
+      history.back();
+    }
   }
+
+  // 返回键/手势返回 会触发浏览器的 popstate，在这里接住，关掉弹窗
+  window.addEventListener('popstate', () => {
+    closeModal(true);
+  });
 
   // ── Events ─────────────────────────────────────────
   function wireEvents() {
+        const sidebarEl = document.getElementById('sidebar');
+    const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+    if (sidebarEl && sidebarToggleBtn) {
+      if (localStorage.getItem('sidebarCollapsed') === '1') {
+        sidebarEl.classList.add('collapsed');
+        sidebarToggleBtn.setAttribute('aria-expanded', 'false');
+      }
+      sidebarToggleBtn.addEventListener('click', () => {
+        const collapsed = sidebarEl.classList.toggle('collapsed');
+        sidebarToggleBtn.setAttribute('aria-expanded', String(!collapsed));
+        localStorage.setItem('sidebarCollapsed', collapsed ? '1' : '0');
+      });
+    }
     // Search
     searchEl.addEventListener('input', debounce(() => {
       state.search = searchEl.value;
@@ -1697,7 +1776,8 @@
     });
 
     // Modal close
-    modalClose.addEventListener('click', closeModal);
+    // modalClose.addEventListener('click', closeModal);
+    modalClose.addEventListener('click', () => closeModal());
     modalOverlay.addEventListener('click', e => {
       if (e.target === modalOverlay) closeModal();
     });
