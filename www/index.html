@@ -1007,7 +1007,7 @@
         const { StatusBar } = window.Capacitor.Plugins;
         const applyStatusBarStyle = () => {
           const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          StatusBar.setStyle({ style: isDark ? 'DARK' : 'LIGHT' });
+          // StatusBar.setStyle({ style: isDark ? 'DARK' : 'LIGHT' });
         };
         applyStatusBarStyle();
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStatusBarStyle);
