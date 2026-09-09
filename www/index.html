@@ -1011,10 +1011,10 @@
     try {
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
         console.log('[埋点 1.1] 检测到 StatusBar 插件，开始设置');
-        const { StatusBar, Style } = window.Capacitor.Plugins;
+        const { StatusBar } = window.Capacitor.Plugins;
         const applyStatusBarStyle = () => {
           const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
+          StatusBar.setStyle({ style: isDark ? 'DARK' : 'LIGHT' });
         };
         applyStatusBarStyle();
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStatusBarStyle);
