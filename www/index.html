@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#1e2327">
   <!-- 如让深色/浅色模式下颜色不同 -->
   <meta name="theme-color" content="#1e2327" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="##ffffff" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#1e2327" media="(prefers-color-scheme: dark)">
 
   <!-- iOS Safari：如果你是"添加到主屏幕"当作 PWA 打开的 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -723,6 +723,7 @@
 
       .sidebar-header {
         padding: 14px 14px 12px;
+        padding-top: calc(14px + env(safe-area-inset-top));
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -1059,6 +1060,10 @@
 </head>
 <body>
 
+    <!-- //测试控制台 -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
+
 <div class="app-shell">
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -1262,6 +1267,17 @@
 
   // ── Data Loading ───────────────────────────────────
   async function init() {
+
+    //设置状态栏颜色，显示不正确
+    if (window.Capacitor?.Plugins?.StatusBar) {
+      const { StatusBar, Style } = window.Capacitor.Plugins;
+      const applyStatusBarStyle = () => {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
+  };
+      applyStatusBarStyle();
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStatusBarStyle);
+}
     // 这里是 init 函数里面的全部代码
     try {
        // 加载 exercises.json
@@ -1295,7 +1311,7 @@
         `;
     }
 }
-init();
+
 
   // ── Build Filter Chips ─────────────────────────────
 
