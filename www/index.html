@@ -1001,16 +1001,13 @@
 
   // ── Data Loading ───────────────────────────────────
   async function init() {
-    //设置状态栏颜色
+    //设置状态栏颜色：固定浅色背景 + 黑色文字/图标，不跟随系统深浅色模式变化
     try {
       if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
         const { StatusBar } = window.Capacitor.Plugins;
-        const applyStatusBarStyle = () => {
-          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          // StatusBar.setStyle({ style: isDark ? 'DARK' : 'LIGHT' });
-        };
-        applyStatusBarStyle();
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStatusBarStyle);
+        StatusBar.setOverlaysWebView({ overlay: false });   // 状态栏单独占一块区域，不叠加透明在页面上
+        StatusBar.setBackgroundColor({ color: '#ffffff' }); // 状态栏背景色
+        StatusBar.setStyle({ style: 'LIGHT' });             // 'LIGHT' = 黑色文字/图标（配合浅色背景用）
       }
     } catch (statusBarError) {
       console.error('StatusBar 设置出错（已捕获，继续往下走）:', statusBarError);
