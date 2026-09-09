@@ -945,6 +945,16 @@
 </div>
 
 <script>
+  console.log('[埋点 0] 主 <script> 开始解析执行');
+
+  // 全局兜底：不管哪里出错，都强制打印出来，避免"静默失败"
+  window.addEventListener('error', function (e) {
+    console.error('[全局捕获 window.onerror]', e.message, '@', e.filename + ':' + e.lineno + ':' + e.colno, e.error);
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    console.error('[全局捕获 unhandledrejection]', e.reason);
+  });
+
   let EXERCISES =[]
   // ── State ──────────────────────────────────────────
   const state = {
@@ -995,27 +1005,40 @@
 
   // ── Data Loading ───────────────────────────────────
   async function init() {
+    console.log('[埋点 1] init() 已进入');
 
     //设置状态栏颜色，显示不正确
-    if (window.Capacitor?.Plugins?.StatusBar) {
-      const { StatusBar, Style } = window.Capacitor.Plugins;
-      const applyStatusBarStyle = () => {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
-  };
-      applyStatusBarStyle();
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStatusBarStyle);
-}
+    try {
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+        console.log('[埋点 1.1] 检测到 StatusBar 插件，开始设置');
+        const { StatusBar, Style } = window.Capacitor.Plugins;
+        const applyStatusBarStyle = () => {
+          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
+        };
+        applyStatusBarStyle();
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStatusBarStyle);
+        console.log('[埋点 1.2] StatusBar 设置完成');
+      } else {
+        console.log('[埋点 1.1] 未检测到 StatusBar 插件（跳过，不影响后续加载）');
+      }
+    } catch (statusBarError) {
+      console.error('[埋点 1.x] StatusBar 设置出错（已捕获，继续往下走）:', statusBarError);
+    }
+
     // 这里是 init 函数里面的全部代码
     try {
        // 加载 exercises.json
+        console.log('[埋点 2] 准备 fetch ./data/exercises.json');
         const response = await fetch('./data/exercises.json');
+        console.log('[埋点 3] fetch 已返回，status =', response.status, 'ok =', response.ok);
 
         if (!response.ok) {
             throw new Error(`无法加载 exercises.json：HTTP ${response.status}`);
         }
 
         EXERCISES = await response.json();
+        console.log('[埋点 4] JSON 解析完成，共', EXERCISES.length, '条数据');
 
         state.exercises = EXERCISES;
 
@@ -1023,13 +1046,17 @@
         state.exercises.forEach(ex => {
             ex._idx = `${ex.name} ${ex.category} ${ex.target} ${ex.equipment} ${ex.muscle_group}`.toLowerCase();
         });
+        console.log('[埋点 5] 搜索索引构建完成');
 
         buildFilterOptions();
+        console.log('[埋点 6] buildFilterOptions() 完成');
         applyFilters();
+        console.log('[埋点 7] applyFilters() 完成');
         wireEvents();
+        console.log('[埋点 8] wireEvents() 完成，init() 全部结束');
 
     } catch (error) {
-        console.error('加载动作数据失败:', error);
+        console.error('[埋点 9] 加载动作数据失败:', error, error && error.stack);
 
         gridEl.innerHTML = `
             <div style="padding:40px;text-align:center;">
@@ -1563,7 +1590,10 @@
 
 
   // ── Boot ───────────────────────────────────────────
-  init();
+  console.log('[埋点 10] 即将调用 init()');
+  init()
+    .then(() => console.log('[埋点 11] init() 的 Promise 已 resolve（正常走完）'))
+    .catch(err => console.error('[埋点 12] init() 的 Promise 被 reject（有未捕获的错误）:', err, err && err.stack));
 
 </script>
 </body>
