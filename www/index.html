@@ -1908,7 +1908,7 @@
   let currentDb = 'mssql';
 
   const dbOverlay      = document.getElementById('db-overlay');
-  const dbOpenBtn      = document.getElementById('db-setup-open');
+  // const dbOpenBtn      = document.getElementById('db-setup-open');
   const dbCloseBtn     = document.getElementById('db-setup-close');
   const dbTabs         = document.querySelectorAll('.db-tab');
   const createSqlEl    = document.getElementById('create-table-sql');
@@ -2019,7 +2019,7 @@
   }
 
   // Wire DB Setup events
-  dbOpenBtn.addEventListener('click', openDbSetup);
+  // dbOpenBtn.addEventListener('click', openDbSetup);
   dbCloseBtn.addEventListener('click', closeDbSetup);
   dbOverlay.addEventListener('click', e => { if (e.target === dbOverlay) closeDbSetup(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && dbOverlay.classList.contains('open')) closeDbSetup(); });
